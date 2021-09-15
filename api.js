@@ -7,6 +7,9 @@ const userRoutes = require('./routes/user');
 
 const app = express()
 
+// connect to db
+require('./utils/connectDB')();
+
 // development mode
 if(process.env.APPMODE == "development"){
     morgan('dev')
