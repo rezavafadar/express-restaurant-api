@@ -1,5 +1,10 @@
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const uuid = require('uuid').v4;
+const sharp = require('sharp');
+
+const path = require('path');
 
 const User = require("../model/user");
 const errHandler = require("../utils/errhandler");
@@ -91,4 +96,23 @@ exports.resetPassword = errHandler(async (req,res)=>{
         res.status(200).json({'message':'successfull!'})
     }
     else  return res.status(401).json({'message':'Bad Request ! Token is not valid'})
+})
+
+exports.uploadProfileImg = errHandler(async (req,res) =>{
+const user =await User.findOne({email:req.body.email})
+if(!user) return res.status(400).json({'message':'User Is Not Defined!'})
+
+    const img = req.files ? req.files.profile : {}
+
+    const fileName = `${uuid()}_${img.name}`
+    const uploadPath = path.join(__dirname,"..","public","uploadImgs",fileName)
+    sharp(img.data)
+    .toFormat('jpeg')
+    .jpeg({quality:60})
+    .toFile(uploadPath)
+    .catch(err => console.log(err))
+
+    user.photo = fileName
+    await user.save()
+    res.status(200).json({'message':'upload image is successful!'})
 })

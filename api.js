@@ -1,6 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
-
+const fileUpload = require('express-fileupload');
 require('dotenv').config({path:"./config/.env"});
 
 const userRoutes = require('./routes/user');
@@ -18,7 +18,9 @@ if(process.env.APPMODE == "development"){
 // express middleware
 app.use(express.urlencoded())
 app.use(express.json())
+app.use(fileUpload())
 app.use(express.static('public'))
+
 
 // routes
 app.use('/api/user',userRoutes)
