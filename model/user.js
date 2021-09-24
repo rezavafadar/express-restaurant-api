@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const {validateSchema} = require('./secure/user');
 
@@ -29,13 +30,20 @@ const userSchema = mongoose.Schema({
         default:true
     },
     passwordChangedAt:Date,
-    passwordResetAt:Date,
+    passwordResetToken:String,
+    passwordResetExpires:Date,
     createAt:{
         type:Date,
         default:Date.now()
     }
 })
 
+userSchema.pre('save',async function(next){
+    if(!this.isModified('password')) return next()
+
+    this.password = await bcrypt.hash(this.password,10)
+    next()
+})
 userSchema.statics.validateBody = function(body){
     return validateSchema.validate(body,{abortEarly:false})
 }
