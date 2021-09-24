@@ -7,4 +7,6 @@ router.post('/login',userController.loginHandler)
 router.post('/forgetpassword',userController.forgetPassword)
 router.post('/resetpassword/:id',userController.resetPassword)
 router.post('/uploadprofile',userController.uploadProfileImg)
+router.patch('/getuser',userController.getUser)
+
 module.exports = router;

@@ -9,6 +9,13 @@ const path = require('path');
 const User = require("../model/user");
 const errHandler = require("../utils/errhandler");
 
+exports.getUser = errHandler(async (req,res)=>{
+    const {fullname='',email='',createAt='',role='',active='',photo=''} = await User.findOne({email:req.body.email})
+    if(fullname == '') return res.status(404).json({'message':'User Is Not Defined!'})
+
+    res.status(404).json({'message':'Find User Is Successfull!',data:{fullname,email,createAt,role,active,photo}})
+})
+
 exports.registerHandler = errHandler(async (req, res) => {
   // handle validation error handler
   let errors;
