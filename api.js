@@ -21,7 +21,6 @@ app.use(express.json())
 app.use(fileUpload())
 app.use(express.static('public'))
 
-
 // routes
 app.use('/api/user',userRoutes)
 // app.use('/api/admin')
