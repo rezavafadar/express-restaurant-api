@@ -44,8 +44,20 @@ userSchema.pre('save',async function(next){
     this.password = await bcrypt.hash(this.password,10)
     next()
 })
+
 userSchema.statics.validateBody = function(body){
     return validateSchema.validate(body,{abortEarly:false})
 }
 
+userSchema.methods.changedPasswordAfter= function(jwtTime){
+    const passwordChangedTime = this.passwordChangedAt
+    if(passwordChangedTime){
+        const changeTime = parseInt(passwordChangedTime.getTime() /1000,10)
+
+        return jwtTime < changeTime
+    }
+
+    return false
+
+}
 module.exports = mongoose.model('users',userSchema)
