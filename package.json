@@ -4,8 +4,8 @@
   "description": "",
   "main": "api.js",
   "scripts": {
-    "start": "cross-env APPMODE=production node api",
-    "dev": "cross-env APPMODE=development nodemon api"
+    "start": "cross-env NODE_ENV=production node server",
+    "dev": "cross-env NODE_ENV=dev nodemon server"
   },
   "repository": {
     "type": "git",
