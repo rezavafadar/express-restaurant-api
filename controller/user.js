@@ -4,9 +4,8 @@ const sharp = require("sharp");
 const path = require("path");
 
 const User = require("../model/user");
-const errHandler = require("../utils/errhandler");
 
-exports.getUser = errHandler(async (req, res) => {
+exports.getUser = async (req, res) => {
   const {
     fullname = "",
     email = "",
@@ -22,9 +21,9 @@ exports.getUser = errHandler(async (req, res) => {
     message: "Find user is successfull!",
     data: { fullname, email, createAt, role, active, photo },
   });
-});
+};
 
-exports.uploadProfileImg = errHandler(async (req, res, next) => {
+exports.uploadProfileImg = async (req, res, next) => {
   if (!req.files) return next();
   console.log("upload controller:", req.files);
 
@@ -47,7 +46,7 @@ exports.uploadProfileImg = errHandler(async (req, res, next) => {
 
   req.profileImg = fileName;
   next();
-});
+};
 
 const filtredObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -57,7 +56,7 @@ const filtredObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.updateMe = errHandler(async (req, res) => {
+exports.updateMe = async (req, res) => {
 
   const body = req.body;
 
@@ -73,10 +72,10 @@ exports.updateMe = errHandler(async (req, res) => {
   await User.findByIdAndUpdate(req.user.id, obj);
 
   res.status(200).json({ message: "Edit is successfull!" });
-});
+};
 
-exports.deleteUser = errHandler(async(req,res)=>{
+exports.deleteUser = async(req,res)=>{
   await User.findByIdAndUpdate(req.user.id,{active:false})
 
   res.status(200).json({'status':'success'})
-})
+};

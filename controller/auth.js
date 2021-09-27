@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 
 const User = require('../model/user');
-const errHandler = require('../utils/errhandler');
 const {signToken,verifyToken} = require('../utils/jwt');
 
 
@@ -13,7 +12,7 @@ const createSendToken = (user, statusCode, req, res) => {
 	res.status(statusCode).json({ status: 'success', token, data: user });
 };
 
-exports.registerHandler = errHandler(async (req, res) => {
+exports.registerHandler = async (req, res) => {
 	try {
 		await User.validateBody(req.body);
 	} catch (err) {
@@ -44,9 +43,9 @@ exports.registerHandler = errHandler(async (req, res) => {
 	await User.create(user);
 
 	res.status(201).json({ message: 'User created !' });
-});
+};
 
-exports.loginHandler = errHandler(async (req, res) => {
+exports.loginHandler = async (req, res) => {
 	const { email, password } = req.body;
 
 	if (email && password) {
@@ -65,9 +64,9 @@ exports.loginHandler = errHandler(async (req, res) => {
 		.status(400)
 		.json({ message: "Bad Request ! Email or password is wrong" });
 	}
-});
+};
 
-exports.forgetPassword = errHandler(async (req, res) => {
+exports.forgetPassword = async (req, res) => {
 	const { email } = req.body;
 	if (!email)
 	  return res.status(400).json({ message: "Bad Request! email is required" });
@@ -82,9 +81,9 @@ exports.forgetPassword = errHandler(async (req, res) => {
 	await user.save();
 	const url = `http://localhost:3000/api/user/resetpassword/${token}`;
 	res.status(200).json({ message: "successful!", url: url });
-});
+};
   
-exports.resetPassword = errHandler(async (req, res) => {
+exports.resetPassword = async (req, res) => {
 	const { id } = req.params;
   
 	let token = await verifyToken(id)
@@ -115,9 +114,9 @@ exports.resetPassword = errHandler(async (req, res) => {
 	  return res
 		.status(401)
 		.json({ message: "Bad Request ! Token is not valid" });
-});
+};
 
-exports.protect = errHandler(async (req, res, next) => {
+exports.protect = async (req, res, next) => {
 	let token;
 	if (
 		req.headers.authorization &&
@@ -149,4 +148,4 @@ exports.protect = errHandler(async (req, res, next) => {
 
 	req.user = currentUser;
 	next();
-});
+};
