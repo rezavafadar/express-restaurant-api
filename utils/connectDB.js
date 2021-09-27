@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const uri =
-  process.env.APPMODE == "development"
+  process.env.NODE_ENV == "dev"
     ? process.env.DEVELOP_DB_URI
     : process.env.PRODUCTION_DB_URI;
 
