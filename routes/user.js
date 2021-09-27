@@ -11,6 +11,7 @@ router.post('/resetpassword/:id',userController.resetPassword)
 // cauth user controller and protect all routes after this midlleware
 router.use(authController.protect)
 
-router.post('/updateme',userController.uploadProfileImg,userController.updateMe)
 router.get('/getuser',userController.getUser)
+router.patch('/updateme',userController.uploadProfileImg,userController.updateMe)
+router.delete('/deleteuser',userController.deleteUser)
 module.exports = router;

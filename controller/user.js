@@ -21,8 +21,8 @@ exports.getUser = errHandler(async (req, res) => {
   if (fullname == "")
     return res.status(404).json({ message: "User Is Not Defined!" });
 
-  res.status(404).json({
-    message: "Find User Is Successfull!",
+  res.status(200).json({
+    message: "Find user is successfull!",
     data: { fullname, email, createAt, role, active, photo },
   });
 });
@@ -177,7 +177,13 @@ exports.updateMe = errHandler(async (req, res) => {
 
   if (req.profileImg) obj.photo = req.profileImg;
 
-  await User.findByIdAndUpdate(req.user, obj);
+  await User.findByIdAndUpdate(req.user.id, obj);
 
-  res.status(200).json({ message: "edit is successfull!" });
+  res.status(200).json({ message: "Edit is successfull!" });
 });
+
+exports.deleteUser = errHandler(async(req,res)=>{
+  await User.findByIdAndUpdate(req.user.id,{active:false})
+
+  res.status(200).json({'status':'success'})
+})
