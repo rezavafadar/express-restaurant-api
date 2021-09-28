@@ -1,5 +1,5 @@
 const app = require('./app')();
-const connectDB = require('./utils/connectDB');
+const connectDB = require('./database/connectDB');
 
 connectDB()
 
