@@ -1,0 +1,113 @@
+const uuid = require('uuid').v4;
+const sharp = require('sharp');
+
+const path = require('path');
+
+const Restaurant = require('../model/restaurant');
+const filtredObj = require('../utils/filteredObj');
+
+exports.addRestaurant = async (req, res) => {
+	try {
+		await Restaurant.validateBody(req.body);
+	} catch (error) {
+		return res
+			.status(400)
+			.json({ message: 'Bad request! Validation faild', error });
+	}
+
+	const data = {
+		name: req.body.name,
+		bio: req.body.bio,
+		address: req.body.address,
+		phone: req.body.phone,
+	};
+
+	const currentRestaurant = await Restaurant.findOne({
+		$or: [
+			{
+				name: data.name,
+				address: data.address,
+			},
+			{ address: data.address },
+		],
+	});
+
+	if (currentRestaurant)
+		return res
+			.status(400)
+			.json({
+				message: 'There is a restaurant with this name and address',
+			});
+
+	await Restaurant.create(data);
+	res.status(201).json({ message: 'Restaurant created!' });
+};
+
+exports.getRestaurant = async (req, res) => {
+	const { id } = req.params;
+
+	const currentRestaurant = await Restaurant.findById(id);
+
+	if (!currentRestaurant)
+		return res
+			.status(404)
+			.json({ message: 'Restaurant is not defined', data: null });
+
+	res.status(200).json({
+		message: 'find restaurant is successfull!',
+		data: currentRestaurant,
+	});
+};
+
+exports.uploadImg = async (req,res,next) =>{
+    if(!req.files || !req.files.profileImg) return next()
+
+    const img = req.files.profileImg
+    const fileName = `${uuid()}_${img.name}`
+    const uploadPath = path.join(__dirname,'..','public','restaurantProfile',fileName)
+
+    sharp(img.data)
+    .toFormat('jpeg')
+    .jpeg({quality:60})
+    .toFile(uploadPath)
+    .catch(err => console.log(err))
+
+    req.restaurantProfileImg = fileName
+    next()
+}
+
+exports.editRestaurant = async (req, res) => {
+	const { id } = req.params;
+
+	if (req.body.admin || req.body.active) return res.status(400).json({
+			message: 'Bad Request ! The request contains sensitive information',
+		});
+
+	const obj = filtredObj(req.body, 'name', 'phone', 'bio', 'address');
+    if(req.restaurantProfileImg) obj.photo = req.restaurantProfileImg
+	const restaurant = await Restaurant.findOneAndUpdate({ _id: id }, obj);
+
+    if(!restaurant) return res.status(404).json({'message':'restaurant is not defined'})
+
+    res.status(200).json({'message':'Edit is successfull!'})
+};
+
+exports.deleteRestaurant = async (req, res) => {
+	const { id } = req.params;
+
+	const currentRestaurant = await Restaurant.findOneAndUpdate(
+		{ _id: id, active: true },
+		{ active: false }
+	);
+
+	if (!currentRestaurant)
+		return res.status(404).json({ message: 'restaurant is not defined' });
+	res.status(200).json({ message: 'Delete restaurant is successfull' });
+};
+
+exports.getAllRestaurant = async (req,res)=>{
+    const {id} = req.params
+    const restaurants = await Restaurant.find({}).skip((id-1)*10).limit(10)
+
+    res.status(200).json({'message':'successfull!',data:restaurants})
+}

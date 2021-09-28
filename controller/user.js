@@ -4,6 +4,7 @@ const sharp = require("sharp");
 const path = require("path");
 
 const User = require("../model/user");
+const filtredObj = require('../utils/filteredObj');
 
 exports.getUser = async (req, res) => {
   const {
@@ -15,7 +16,7 @@ exports.getUser = async (req, res) => {
     photo = "",
   } = await User.findById(req.params.id);
   if (fullname == "")
-    return res.status(404).json({ message: "User Is Not Defined!" });
+    return res.status(404).json({ message: "User is not defined!" });
 
   res.status(200).json({
     message: "Find user is successfull!",
@@ -25,7 +26,6 @@ exports.getUser = async (req, res) => {
 
 exports.uploadProfileImg = async (req, res, next) => {
   if (!req.files) return next();
-  console.log("upload controller:", req.files);
 
   const img = req.files ? req.files.profileImg : {};
 
@@ -46,14 +46,6 @@ exports.uploadProfileImg = async (req, res, next) => {
 
   req.profileImg = fileName;
   next();
-};
-
-const filtredObj = (obj, ...allowedFields) => {
-  const newObj = {};
-  Object.keys(obj).forEach((el) => {
-    if (allowedFields.includes(el)) newObj[el] = obj[el];
-  });
-  return newObj;
 };
 
 exports.updateMe = async (req, res) => {

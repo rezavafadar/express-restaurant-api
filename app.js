@@ -6,6 +6,7 @@ const dotenv = require('dotenv')
 dotenv.config({path:`./config/${process.env.NODE_ENV}.env`})
 
 const userRoutes = require('./routes/user');
+const restaurantRoutes = require('./routes/restaurant');
 
 function application() {
 	const app = express();
@@ -23,7 +24,7 @@ function application() {
 
 	// routes
 	app.use('/api/user', userRoutes);
-	// app.use('/api/admin')
+	app.use('/api/restaurant',restaurantRoutes)
 	return app;
 }
 
