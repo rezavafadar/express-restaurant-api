@@ -11,10 +11,13 @@ router.post('/forgetpassword',errHandler(authController.forgetPassword) )
 router.patch('/resetpassword/:id',errHandler(authController.resetPassword) )
 
 // cauth user controller and protect all routes after this midlleware
-router.use(errHandler(authController.protect))
+router.use(errHandler(authController.protect)) 
 
 router.get('/getuser',errHandler(userController.getUser) )
 router.patch('/updateme',errHandler(userController.uploadProfileImg),errHandler(userController.updateMe))
-router.delete('/deleteuser',errHandler(userController.deleteUser))
 
+router.use(authController.restricTo('superAdmin'))
+
+router.delete('/deleteuser',errHandler(userController.deleteUser))
+router.get('/add/:id',userController.getAllUser)
 module.exports = router;

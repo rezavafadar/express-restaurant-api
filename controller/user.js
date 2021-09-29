@@ -71,3 +71,11 @@ exports.deleteUser = async(req,res)=>{
 
   res.status(200).json({'status':'success'})
 };
+
+exports.getAllUser = async (req,res)=>{
+  const {id} = req.params
+
+  const users = await User.find({}).skip((id-1)*10).exec(10)
+
+  res.status(200).json({'message':'successfull!',data:users})
+}
