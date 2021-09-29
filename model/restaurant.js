@@ -33,7 +33,7 @@ const restaurantSchema = mongoose.Schema({
     },
     active:{
         type:Boolean,
-        required:true
+        default:true
     },
     createAt:{
         type:Date,

@@ -21,6 +21,7 @@ exports.addRestaurant = async (req, res) => {
 		bio: req.body.bio,
 		address: req.body.address,
 		phone: req.body.phone,
+		admin:req.user.id
 	};
 
 	const currentRestaurant = await Restaurant.findOne({
