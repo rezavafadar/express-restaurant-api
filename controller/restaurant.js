@@ -1,5 +1,6 @@
 const uuid = require('uuid').v4;
 const sharp = require('sharp');
+const mongoose = require('mongoose');
 
 const path = require('path');
 
@@ -45,6 +46,8 @@ exports.addRestaurant = async (req, res) => {
 
 exports.getRestaurant = async (req, res) => {
 	const { id } = req.params;
+	console.log(mongoose.Types.ObjectId.isValid(id));
+	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
 
 	const currentRestaurant = await Restaurant.findById(id);
 
@@ -78,6 +81,7 @@ exports.uploadImg = async (req,res,next) =>{
 
 exports.editRestaurant = async (req, res) => {
 	const { id } = req.params;
+	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
 
 	if (req.body.admin || req.body.active) return res.status(400).json({
 			message: 'Bad Request ! The request contains sensitive information',
@@ -94,6 +98,7 @@ exports.editRestaurant = async (req, res) => {
 
 exports.deleteRestaurant = async (req, res) => {
 	const { id } = req.params;
+	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
 
 	const currentRestaurant = await Restaurant.findOneAndUpdate(
 		{ _id: id, active: true },
@@ -107,6 +112,8 @@ exports.deleteRestaurant = async (req, res) => {
 
 exports.getAllRestaurant = async (req,res)=>{
     const {id} = req.params
+	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
+
     const restaurants = await Restaurant.find({}).skip((id-1)*10).limit(10)
 
     res.status(200).json({'message':'successfull!',data:restaurants})
