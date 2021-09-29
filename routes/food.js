@@ -1,12 +1,18 @@
 const router = require('express').Router();
 
-router.get('/:id')
+const {restricTo,protect} = require('../controller/auth');
+const {addFood, getFood} = require('../controller/food');
 
-// authenticate middleware
 
-router.post('/add-food')
+router.use(protect)
 
-router.patch('/:id')
+router.get('/:id',getFood)
 
-router.delete('/:id')
+router.use(restricTo('admin'))
+
+router.post('/add-food/:id',addFood)
+
+// router.patch('/:id')
+
+// router.delete('/:id')
 module.exports = router

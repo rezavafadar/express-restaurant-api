@@ -113,7 +113,6 @@ exports.deleteRestaurant = async (req, res) => {
 
 exports.getAllRestaurant = async (req,res)=>{
     const {id} = req.params
-	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
 
     const restaurants = await Restaurant.find({}).skip((id-1)*10).limit(10)
 
