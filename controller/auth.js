@@ -133,6 +133,7 @@ exports.protect = async (req, res, next) => {
 			message: 'You are not logged in! Please log in to get access.',
 		});
 
+		console.log(token);
 	const decoded = await verifyToken(token);
 	if (!decoded)
 		return res
@@ -154,4 +155,28 @@ exports.protect = async (req, res, next) => {
 
 	req.user = currentUser;
 	next();
+};
+
+// exports.restricTo1 = async(...roles)=>{
+// 	return (req,res,next)=>{
+// 		if(!roles.includes(req.user.role)) return res
+// 		.status(401)
+// 		.json({'message':'Bad request! you do not have permission to perform this action'})
+		
+// 		next()
+// 	}
+// }
+
+exports.restricTo = (...roles)=>{
+  return (req, res, next) => {
+	  console.log(roles);
+    // roles ['admin', 'lead-guide']. role='user'
+    if (!roles.includes(req.user.role)) {
+      return res
+	   		.status(401)
+	  		.json({'message':'Bad request! you do not have permission to perform this action'})
+    }
+
+    next();
+  };
 };
