@@ -1,8 +1,9 @@
 const router = require('express').Router();
 
 const {restricTo,protect} = require('../controller/auth');
-const {addFood, getFood} = require('../controller/food');
+const {addFood, getFood, getAllFoods} = require('../controller/food');
 
+router.get('/all/:id',getAllFoods)
 
 router.use(protect)
 
