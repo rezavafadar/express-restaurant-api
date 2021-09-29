@@ -12,11 +12,11 @@ const {
 const errHandler = require('../utils/errhandler');
 
 router.get('/all/:id', errHandler(getAllRestaurant));
+router.get('/:id', errHandler(getRestaurant));
 
 router.use(authController.protect);
-router.use(authController.restricTo('admin'));
+router.use(authController.restricTo('admin','superAdmin'));
 
-router.get('/:id', errHandler(getRestaurant));
 
 router.post('/add-restaurant', errHandler(addRestaurant));
 

@@ -90,7 +90,12 @@ exports.editRestaurant = async (req, res) => {
 
 	const obj = filtredObj(req.body, 'name', 'phone', 'bio', 'address');
     if(req.restaurantProfileImg) obj.photo = req.restaurantProfileImg
-	const restaurant = await Restaurant.findOneAndUpdate({ _id: id,admin:req.user.id }, obj);
+
+	const findObj = {
+		_id:id
+	}
+	if(req.user.role !== 'superAdmin') findObj.admin =req.user.id
+	const restaurant = await Restaurant.findOneAndUpdate(findObj, obj);
 
     if(!restaurant) return res.status(404).json({'message':'restaurant is not defined'})
 
@@ -100,9 +105,13 @@ exports.editRestaurant = async (req, res) => {
 exports.deleteRestaurant = async (req, res) => {
 	const { id } = req.params;
 	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
-
+	const findObj = {
+		_id:id,
+		active:true
+	}
+	if(req.user.role !== 'superAdmin') findObj.admin =req.user.id
 	const currentRestaurant = await Restaurant.findOneAndUpdate(
-		{ _id: id, active: true,admin:req.user.id },
+		findObj,
 		{ active: false }
 	);
 
