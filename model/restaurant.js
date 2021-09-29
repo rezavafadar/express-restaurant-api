@@ -11,6 +11,10 @@ const restaurantSchema = mongoose.Schema({
         type:String,
         required:true
     },
+    admin:{
+        type:String,
+        required:true
+    },
     score:{
         type:Number,
         default:0
