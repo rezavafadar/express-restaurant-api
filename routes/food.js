@@ -1,19 +1,21 @@
 const router = require('express').Router();
 
 const {restricTo,protect} = require('../controller/auth');
-const {addFood, getFood, getAllFoods} = require('../controller/food');
+const {addFood, getFood, getAllFoods, deleteFood, uploadFoodImg, editFood} = require('../controller/food');
+const errHandler = require('../utils/errhandler');
 
-router.get('/all/:id',getAllFoods)
+router.get('/all/:id',errHandler(getAllFoods))
 
-router.use(protect)
+router.use(errHandler(protect))
 
-router.get('/:id',getFood)
+router.get('/:id',errHandler(getFood))
 
-router.use(restricTo('admin'))
+router.use(restricTo('admin','superAdmin'))
 
-router.post('/add-food/:id',addFood)
+router.post('/add-food/:id',errHandler(addFood))
 
-// router.patch('/:id')
+router.patch('/:id',errHandler(uploadFoodImg),errHandler(editFood))
 
-// router.delete('/:id')
+router.delete('/:id',errHandler(deleteFood))
+
 module.exports = router
