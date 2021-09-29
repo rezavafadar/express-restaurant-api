@@ -6,9 +6,9 @@ const errHandler = require('../utils/errhandler');
 
 router.get('/all/:id',errHandler(getAllFoods))
 
-router.use(errHandler(protect))
-
 router.get('/:id',errHandler(getFood))
+
+router.use(errHandler(protect))
 
 router.use(restricTo('admin','superAdmin'))
 
