@@ -16,8 +16,7 @@ router.use(errHandler(authController.protect))
 router.get('/getuser',errHandler(userController.getUser) )
 router.patch('/updateme',errHandler(userController.uploadProfileImg),errHandler(userController.updateMe))
 
-router.use(authController.restricTo('superAdmin'))
 
 router.delete('/deleteuser',errHandler(userController.deleteUser))
-router.get('/add/:id',userController.getAllUser)
+router.get('/all/:id',userController.getAllUser)
 module.exports = router;

@@ -1,30 +1,30 @@
-const uuid = require("uuid").v4;
-const sharp = require("sharp");
+const uuid = require('uuid').v4;
+const sharp = require('sharp');
 
-const path = require("path");
+const path = require('path');
 
-const User = require("../model/user");
+const User = require('../model/user');
 const filtredObj = require('../utils/filteredObj');
 
-exports.getUser = async (req, res) => {
+const getUser = async (req, res) => {
   const {
-    fullname = "",
-    email = "",
-    createAt = "",
-    role = "",
-    active = "",
-    photo = "",
+    fullname = '',
+    email = '',
+    createAt = '',
+    role = '',
+    active = '',
+    photo = '',
   } = await User.findById(req.params.id);
-  if (fullname == "")
-    return res.status(404).json({ message: "User is not defined!" });
+  if (fullname === '')
+    return res.status(404).json({ message: 'User is not defined!' });
 
   res.status(200).json({
-    message: "Find user is successfull!",
+    message: 'Find user is successfull!',
     data: { fullname, email, createAt, role, active, photo },
   });
 };
 
-exports.uploadProfileImg = async (req, res, next) => {
+const uploadProfileImg = async (req, res, next) => {
   if (!req.files) return next();
 
   const img = req.files ? req.files.profileImg : {};
@@ -32,14 +32,14 @@ exports.uploadProfileImg = async (req, res, next) => {
   const fileName = `${uuid()}_${img.name}`;
   const uploadPath = path.join(
     __dirname,
-    "..",
-    "public",
-    "uploadImgs",
+    '..',
+    'public',
+    'uploadImgs',
     fileName
   );
 
   sharp(img.data)
-    .toFormat("jpeg")
+    .toFormat('jpeg')
     .jpeg({ quality: 60 })
     .toFile(uploadPath)
     .catch((err) => console.log(err));
@@ -48,34 +48,44 @@ exports.uploadProfileImg = async (req, res, next) => {
   next();
 };
 
-exports.updateMe = async (req, res) => {
+const updateMe = async (req, res) => {
 
   const body = req.body;
 
   if (body.password || body.role)
     return res.status(400).json({
-      message: "Bad Request ! The request contains sensitive information",
+      message: 'Bad Request ! The request contains sensitive information',
     });
 
-  const obj = filtredObj(body, "fullname", "email");
+  const obj = filtredObj(body, 'fullname', 'email');
 
   if (req.profileImg) obj.photo = req.profileImg;
 
   await User.findByIdAndUpdate(req.user.id, obj);
 
-  res.status(200).json({ message: "Edit is successfull!" });
+  res.status(200).json({ message: 'Edit is successfull!' });
 };
 
-exports.deleteUser = async(req,res)=>{
+const deleteUser = async(req,res)=>{
+  
   await User.findByIdAndUpdate(req.user.id,{active:false})
 
   res.status(200).json({'status':'success'})
 };
 
-exports.getAllUser = async (req,res)=>{
+const getAllUser = async (req,res)=>{
+  if(req.user.role != 'superAdmin') return res.status(401).json({'message':'Bad request! you do not have permission to perform this action'})
   const {id} = req.params
 
   const users = await User.find({}).skip((id-1)*10).exec(10)
 
   res.status(200).json({'message':'successfull!',data:users})
+}
+
+module.exports={
+  getUser,
+  uploadProfileImg,
+  updateMe,
+  deleteUser,
+  getAllUser
 }

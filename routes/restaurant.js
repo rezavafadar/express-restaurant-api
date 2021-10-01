@@ -9,19 +9,21 @@ const {
 	uploadImg,
 	getAllRestaurant,
 } = require('../controller/restaurant');
+
 const errHandler = require('../utils/errhandler');
 
 router.get('/all/:id', errHandler(getAllRestaurant));
+
 router.get('/:id', errHandler(getRestaurant));
 
+
 router.use(authController.protect);
-router.use(authController.restricTo('admin','superAdmin'));
 
 
 router.post('/add-restaurant', errHandler(addRestaurant));
 
-router.patch('/:id', errHandler(uploadImg), errHandler(editRestaurant));
+router.patch('/:id',errHandler(authController.isCurrentAdmin), errHandler(uploadImg), errHandler(editRestaurant));
 
-router.delete('/:id', errHandler(deleteRestaurant));
+router.delete('/:id',errHandler(authController.isCurrentAdmin), errHandler(deleteRestaurant));
 
 module.exports = router;

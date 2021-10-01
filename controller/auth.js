@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
 
 const User = require('../model/user');
+const Restaurant = require('../model/restaurant');
 const { signToken, verifyToken } = require('../utils/jwt');
 const sendEmail = require('../utils/email');
 
@@ -156,14 +158,17 @@ exports.protect = async (req, res, next) => {
 	next();
 };
 
-exports.restricTo = (...roles)=>{
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res
-	   		.status(401)
-	  		.json({'message':'Bad request! you do not have permission to perform this action'})
-    }
+exports.isCurrentAdmin = async(req,res,next)=>{
+	if(req.user.role == 'user') return res.status(401).json({'message':'Bad request! you do not have permission to perform this action'})
+	
+	const {id} = req.params
 
-    next();
-  };
-};
+	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
+
+	const currentRestaurant = await Restaurant.findById(id)
+
+	if(!currentRestaurant) return res.status(404).json({message:'Restaurant is not defined!'})
+	if(currentRestaurant.admin != req.user._id) return res.status(401).json({message:'you not restaurant admin'})
+
+	next()
+}

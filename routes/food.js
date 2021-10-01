@@ -10,7 +10,7 @@ router.get('/:id',errHandler(getFood))
 
 router.use(errHandler(protect))
 
-router.use(restricTo('admin','superAdmin'))
+// router.use(restricTo('admin','superAdmin'))
 
 router.post('/add-food/:id',errHandler(addFood))
 

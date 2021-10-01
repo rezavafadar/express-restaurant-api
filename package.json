@@ -5,7 +5,8 @@
   "main": "api.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node server",
-    "dev": "cross-env NODE_ENV=dev nodemon server"
+    "dev": "cross-env NODE_ENV=dev nodemon server",
+    "lint": "eslint ./controller"
   },
   "repository": {
     "type": "git",
@@ -34,5 +35,9 @@
     "sharp": "^0.29.1",
     "uuid": "^8.3.2",
     "yup": "^0.32.9"
+  },
+  "devDependencies": {
+    "@fullstacksjs/eslint-config": "^6.5.3",
+    "eslint": "^7.32.0"
   }
 }

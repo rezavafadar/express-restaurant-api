@@ -7,7 +7,8 @@ const path = require('path');
 const Restaurant = require('../model/restaurant');
 const filtredObj = require('../utils/filteredObj');
 
-exports.addRestaurant = async (req, res) => {
+const addRestaurant = async (req, res) => {
+	if(req.user.role == 'user') return res.status(401).json({'message':'Bad request! you do not have permission to perform this action'})
 	try {
 		await Restaurant.validateBody(req.body);
 	} catch (error) {
@@ -45,7 +46,7 @@ exports.addRestaurant = async (req, res) => {
 	res.status(201).json({ message: 'Restaurant created!' });
 };
 
-exports.getRestaurant = async (req, res) => {
+const getRestaurant = async (req, res) => {
 	const { id } = req.params;
 	console.log(mongoose.Types.ObjectId.isValid(id));
 	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
@@ -63,7 +64,7 @@ exports.getRestaurant = async (req, res) => {
 	});
 };
 
-exports.uploadImg = async (req,res,next) =>{
+const uploadImg = async (req,res,next) =>{
     if(!req.files || !req.files.profileImg) return next()
 
     const img = req.files.profileImg
@@ -80,7 +81,7 @@ exports.uploadImg = async (req,res,next) =>{
     next()
 }
 
-exports.editRestaurant = async (req, res) => {
+const editRestaurant = async (req, res) => {
 	const { id } = req.params;
 	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
 
@@ -102,7 +103,7 @@ exports.editRestaurant = async (req, res) => {
     res.status(200).json({'message':'Edit is successfull!'})
 };
 
-exports.deleteRestaurant = async (req, res) => {
+const deleteRestaurant = async (req, res) => {
 	const { id } = req.params;
 	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
 	const findObj = {
@@ -120,10 +121,21 @@ exports.deleteRestaurant = async (req, res) => {
 	res.status(200).json({ message: 'Delete restaurant is successfull' });
 };
 
-exports.getAllRestaurant = async (req,res)=>{
+const getAllRestaurant = async (req,res)=>{
     const {id} = req.params
 
     const restaurants = await Restaurant.find({}).skip((id-1)*10).limit(10)
 
     res.status(200).json({'message':'successfull!',data:restaurants})
+}
+
+
+
+module.exports={
+	getAllRestaurant,
+	deleteRestaurant,
+	uploadImg,
+	editRestaurant,
+	getRestaurant,
+	addRestaurant
 }
