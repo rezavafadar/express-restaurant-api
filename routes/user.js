@@ -17,7 +17,7 @@ router.patch('/resetpassword/:id',errHandler(userController.resetPassword))
 // cauth user controller and protect all routes after this midlleware
 router.use(errHandler(userController.userAuthenticate)) 
 
-router.route('/')
+router.route('/:id')
        .get(errHandler(userController.getUser))
        .delete(errHandler(userController.deleteUser))
        .patch(errHandler(userController.uploadProfileImg),errHandler(userController.updateMe))

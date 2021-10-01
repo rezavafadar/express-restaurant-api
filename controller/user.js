@@ -136,13 +136,14 @@ const getUser = async (req, res) => {
     role = '',
     active = '',
     photo = '',
-  } = await User.findById(req.user._id);
+	passwordChangedAt
+  } = await User.findById(req.user.role == "superAdmin" ? req.params.id:req.user._id);
   if (fullname === '')
     return res.status(404).json({ message: 'User is not defined!' });
 
   res.status(200).json({
     message: 'Find user is successfull!',
-    data: { fullname, email, createAt, role, active, photo },
+    data: { fullname, email, createAt, role, active, photo,passwordChangedAt },
   });
 };
 
@@ -199,7 +200,7 @@ const updateMe = async (req, res) => {
 
 const deleteUser = async(req,res)=>{
   
-  await User.findByIdAndUpdate(req.user.id,{active:false})
+  await User.findByIdAndUpdate(req.user.role == "superAdmin" ? req.params.id:req.user._id,{active:false})
 
   res.status(200).json({'status':'success'})
 };
