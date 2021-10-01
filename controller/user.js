@@ -3,6 +3,7 @@ const sharp = require('sharp');
 const bcrypt = require('bcrypt');
 
 const path = require('path');
+const fs = require('fs');
 
 const User = require('../model/user');
 const filtredObj = require('../utils/filteredObj');
@@ -181,8 +182,17 @@ const updateMe = async (req, res) => {
   const obj = filtredObj(body, 'fullname', 'email');
 
   if (req.profileImg) obj.photo = req.profileImg;
+  console.log(obj);
+  const user =await User.findByIdAndUpdate(req.user.id, obj);
 
-  await User.findByIdAndUpdate(req.user.id, obj);
+  if(!user) return res.status(404).json({message:'user is not defined'})
+
+  if(user.photo != 'default.jpeg'){
+	  const deletePath = path.join(__dirname,"..","public","uploadImgs",user.photo)
+	  fs.unlink(deletePath,(err) =>{
+		  if(err)console.log('delete img error',err)
+	  })
+  }
 
   res.status(200).json({ message: 'Edit is successfull!' });
 };

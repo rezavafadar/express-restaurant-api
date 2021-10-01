@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const path = require('path');
+const fs = require('fs');
 
 const Restaurant = require('../model/restaurant');
 const filtredObj = require('../utils/filteredObj');
@@ -107,8 +108,6 @@ const uploadImg = async (req,res,next) =>{
 }
 
 const editRestaurant = async (req, res) => {
-	// const { id } = req.params;
-	// if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
 
 	if (req.body.admin || req.body.active) return res.status(400).json({
 			message: 'Bad Request ! The request contains sensitive information',
@@ -123,6 +122,12 @@ const editRestaurant = async (req, res) => {
 
     if(!restaurant) return res.status(404).json({'message':'restaurant is not defined'})
 
+	if(restaurant.photo != 'default.jpeg'){
+		const deletePath = path.join(__dirname,"..","public","restaurantProfile",restaurant.photo)
+		fs.unlink(deletePath,(err) => {
+			if(err)console.log('delete img error',err)
+		})
+	}
     res.status(200).json({'message':'Edit is successfull!'})
 };
 

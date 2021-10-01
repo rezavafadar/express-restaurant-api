@@ -14,7 +14,7 @@ const restaurantSchema = mongoose.Schema({
     adminUsername:{type:String,required:true},
     adminPassword:{type:String,required:true},
     score:{type:Number,default:0},
-    photo:{type:String,default:'restaurant.jpeg'},
+    photo:{type:String,default:'default.jpeg'},
     phone:{type:Number,required:true},
     address:{type:String,required:true},
     active:{type:Boolean,default:true},

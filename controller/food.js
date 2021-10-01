@@ -3,6 +3,7 @@ const uuid = require('uuid').v4;
 const sharp = require('sharp');
 
 const path = require('path');
+const fs= require('fs');
 
 const Food = require('../model/food');
 const Restaurant = require('../model/restaurant');
@@ -63,9 +64,15 @@ const editFood = async (req,res)=>{
     const update = filtredObj(req.body,'name','price','description')
     if(req.foodImg) update.photo = req.foodImg
 
-    console.log(req.restaurant._id);
     const food = await Food.findOneAndUpdate({_id:id,'restaurant.id':req.restaurant._id},update)
     if(!food) return res.status(404).json({'message':'food is not defined'})
+
+    if(food.photo != 'default.jpeg'){
+        const deletePath = path.join(__dirname,"..","public","foodImgs",food.photo)
+        fs.unlink(deletePath,(err) =>{
+            if(err)console.log('delete img error',err)
+        })
+    }
 
     res.status(200).json({'message':'successfull!'})
 }

@@ -13,7 +13,7 @@ const foodSchema = mongoose.Schema({
     },
     photo:{
         type:String,
-        default:'food.jpeg'
+        default:'default.jpeg'
     },
     restaurant:{
         name:{
