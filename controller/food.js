@@ -8,30 +8,27 @@ const Food = require('../model/food');
 const Restaurant = require('../model/restaurant');
 const filtredObj = require('../utils/filteredObj');
 
-exports.addFood = async (req,res)=>{
+const addFood = async (req,res)=>{
     try {
         await Food.validateBody(req.body)
     } catch (error) {
         return res.status(400).json({'message':'Bad request! validation error',error:error.errors})
     }
 
-    const {id} = req.params
-    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'restaurant id is not valid'})
+    const currentRestaurant = await Restaurant.findById({_id:req.restaurant._id,})
+    if(!currentRestaurant) return res.status(404).json({'message':'restaurant is not defined'})
 
-    const currentRestaurant = await Restaurant.findOne({_id:id,admin:req.user.id})
-    if(!currentRestaurant) return res.status(404).json({'message':'restaurant is not defined or you not restaurant admin'})
-
-    const currentFood = await Food.findOne({name:req.body.name,'restaurant.id':currentRestaurant._id,'restaurant.name':currentRestaurant.name})
+    const currentFood = await Food.findOne({name:req.body.name,'restaurant.id':req.restaurant._id,})
     if(currentFood) return res.status(400).json({'message':'This food is available in the restaurant'})
 
 
     const food = {
         name:req.body.name,
         price:req.body.price,
-        bio:req.body.bio,
+        description:req.body.description,
         restaurant:{
-            name:currentRestaurant.name,
-            id:currentRestaurant._id
+            name:req.restaurant.name,
+            id:req.restaurant._id
         }
     }
     
@@ -39,7 +36,7 @@ exports.addFood = async (req,res)=>{
     res.status(201).json({'message':'food is created!'})
 }
 
-exports.uploadFoodImg = async (req,res,next)=>{
+const uploadFoodImg = async (req,res,next)=>{
     if(!req.files) return next()
 
     const img = req.files.foodImg
@@ -57,38 +54,33 @@ exports.uploadFoodImg = async (req,res,next)=>{
     next()
 }
 
-exports.editFood = async (req,res)=>{
+const editFood = async (req,res)=>{
     const {id} = req.params
     if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
 
     if(req.body.restaurant || req.body.score) return res.status(400).json({'message':'Bad Request ! The request contains sensitive information'})
 
-    const update = filtredObj(req.body,'name','price','bio')
+    const update = filtredObj(req.body,'name','price','description')
     if(req.foodImg) update.photo = req.foodImg
 
-    const food = await Food.findByIdAndUpdate(id,update)
-
+    console.log(req.restaurant._id);
+    const food = await Food.findOneAndUpdate({_id:id,'restaurant.id':req.restaurant._id},update)
     if(!food) return res.status(404).json({'message':'food is not defined'})
 
     res.status(200).json({'message':'successfull!'})
 }
-exports.deleteFood = async (req,res) =>{
+
+const deleteFood = async (req,res) =>{
     const {id} = req.params
     if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'food id is not valid'})
 
-    const food = await Food.findById(id)
+    const food = await Food.findOneAndDelete({_id:id,'restaurant.id':req.restaurant._id})
     if(!food) return res.status(404).json({'message':'food is not defined!'})
-
-    const currentRestaurant= await Restaurant.findOne({_id:food.restaurant.id,admin:req.user._id})
-
-    if(currentRestaurant.admin != req.user._id) return res.status(404).json({'message':'you not restaurant admin!'})
-
-    await food.remove()
 
     res.status(200).json({'message':'successfull!'})
 }
 
-exports.getFood = async (req,res) =>{
+const getFood = async (req,res) =>{
     const {id} = req.params
     if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'food id is not valid'})
 
@@ -98,10 +90,19 @@ exports.getFood = async (req,res) =>{
     res.status(200).json({'message':'successfull!',data:food})
 }
 
-exports.getAllFoods = async (req,res) =>{
+const getAllFoods = async (req,res) =>{
     const {id} = req.params
 
     const foods = await Food.find({}).skip((id-1)*10).exec(10)
 
     res.status(200).json({'message':'successfull!',data:foods})
+}
+
+module.exports={
+    addFood,
+    uploadFoodImg,
+    editFood,
+    deleteFood,
+    getAllFoods,
+    getFood
 }

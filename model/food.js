@@ -29,7 +29,7 @@ const foodSchema = mongoose.Schema({
         type:Number,
         default:0
     },
-    bio:{
+    description:{
         type:String,
         required:true
     }
