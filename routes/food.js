@@ -14,8 +14,8 @@ router.use(errHandler(restaurantAuthenticate))
 
 router.post('/add-food',errHandler(addFood))
 
-router.patch('/:id',errHandler(uploadFoodImg),errHandler(editFood))
-
-router.delete('/:id',errHandler(deleteFood))
+router.route('/:id')
+      .delete(errHandler(deleteFood))
+      .patch(errHandler(uploadFoodImg),errHandler(editFood))
 
 module.exports = router
