@@ -9,7 +9,7 @@ const userRoutes = require('./routes/user');
 const restaurantRoutes = require('./routes/restaurant');
 const foodRoutes = require('./routes/food');
 
-function application() {
+function App() {
 	const app = express();
 	const appMode =process.env.NODE_ENV
 	// development mode
@@ -31,4 +31,4 @@ function application() {
 	return app;
 }
 
-module.exports = application
+module.exports = App
