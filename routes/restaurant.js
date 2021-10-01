@@ -23,8 +23,8 @@ router.post('/login',errHandler(login))
 
 router.use(restaurantAuthenticate)
 
-router.patch('/', errHandler(uploadImg), errHandler(editRestaurant));
-
-router.delete('/', errHandler(deleteRestaurant));
+router.route('/')
+      .patch(errHandler(uploadImg), errHandler(editRestaurant))
+	  .delete(errHandler(deleteRestaurant))
 
 module.exports = router;
