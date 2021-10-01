@@ -5,7 +5,7 @@ const errHandler = require('../utils/errhandler');
 const userController = require('../controller/user');
 const authController = require('../controller/auth');
 
-router.post('/register',errHandler(authController.registerHandler) )
+router.post('/register',errHandler(userController.uploadProfileImg),errHandler(authController.registerHandler) )
 router.post('/login',errHandler(authController.loginHandler) )
 router.post('/forgetpassword',errHandler(authController.forgetPassword) )
 router.patch('/resetpassword/:id',errHandler(authController.resetPassword) )
