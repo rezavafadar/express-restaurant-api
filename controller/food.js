@@ -16,10 +16,13 @@ const addFood = async (req,res)=>{
         return res.status(400).json({'message':'Bad request! validation error',error:error.errors})
     }
 
-    const currentRestaurant = await Restaurant.findById({_id:req.restaurant._id,})
+    if(!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).json({'message':'Bad request! food id is not valid'})
+
+    const currentRestaurant = await Restaurant.findById({_id:req.data.role == 'superAdmin'?req.params.id:req.data._id})
+
     if(!currentRestaurant) return res.status(404).json({'message':'restaurant is not defined'})
 
-    const currentFood = await Food.findOne({name:req.body.name,'restaurant.id':req.restaurant._id,})
+    const currentFood = await Food.findOne({name:req.body.name,'restaurant.id':req.data.role == 'superAdmin'?req.params.id:req.data._id})
     if(currentFood) return res.status(400).json({'message':'This food is available in the restaurant'})
 
 
@@ -28,8 +31,8 @@ const addFood = async (req,res)=>{
         price:req.body.price,
         description:req.body.description,
         restaurant:{
-            name:req.restaurant.name,
-            id:req.restaurant._id
+            name:currentRestaurant.name,
+            id:currentRestaurant._id
         }
     }
     
@@ -64,7 +67,11 @@ const editFood = async (req,res)=>{
     const update = filtredObj(req.body,'name','price','description')
     if(req.foodImg) update.photo = req.foodImg
 
-    const food = await Food.findOneAndUpdate({_id:id,'restaurant.id':req.restaurant._id},update)
+    const findObj = {
+        _id:id,
+    }
+    if(req.data.role != 'superAdmin') findObj['restaurant.id']=req.data._id
+    const food = await Food.findOneAndUpdate(findObj,update)
     if(!food) return res.status(404).json({'message':'food is not defined'})
 
     if(food.photo != 'default.jpeg'){
@@ -81,7 +88,13 @@ const deleteFood = async (req,res) =>{
     const {id} = req.params
     if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'food id is not valid'})
 
-    const food = await Food.findOneAndDelete({_id:id,'restaurant.id':req.restaurant._id})
+    const findObj = {
+        _id:id,
+    }
+
+    if(req.data.role != 'superAdmin') findObj['restaurant.id']=req.data._id
+
+    const food = await Food.findOneAndDelete(findObj)
     if(!food) return res.status(404).json({'message':'food is not defined!'})
 
     res.status(200).json({'message':'successfull!'})
