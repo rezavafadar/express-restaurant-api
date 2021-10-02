@@ -2,21 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const validateSchema = require('../validations/user');
+const basketSchema = require('./basket');
 
-const basketSchema = mongoose.Schema(
-    {
-        restaurantName:String,
-        restaurantId:String,
-        foods:[
-            {
-                name:String,
-                price:Number,
-                id:String,
-                number:Number
-            }
-        ]
-    }
-)
 const userSchema = mongoose.Schema({
     fullname:{
         type:String,
