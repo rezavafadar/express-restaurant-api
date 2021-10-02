@@ -21,6 +21,7 @@ const register = async (req, res) => {
 	}
 
 	const password = await bcrypt.hash(req.body.password, 10);
+
 	const data = {
 		name: req.body.name,
 		description: req.body.description,
@@ -51,6 +52,7 @@ const register = async (req, res) => {
 	await Restaurant.create(data);
 	res.status(201).json({ message: 'Restaurant created!' });
 };
+
 const login = async (req, res) => {
 	const { username, password } = req.body;
 
@@ -59,20 +61,20 @@ const login = async (req, res) => {
 			adminUsername: username,
 		});
 
-		if (!currentRestaurant)
-			return res
-				.status(404)
-				.json({ message: 'Restaurant is not defined' });
-		console.log('login pass', currentRestaurant.adminPassword);
-		const passIsMatch = await bcrypt.compare(
-			password,
-			currentRestaurant.adminPassword
-		);
+	if (!currentRestaurant)
+		return res
+			.status(404)
+			.json({ message: 'Restaurant is not defined' });
 
-		if (!passIsMatch)
-			return res.status(400).json({
-				message: 'Bad request! Username or password is wrong',
-			});
+	const passIsMatch = await bcrypt.compare(
+		password,
+		currentRestaurant.adminPassword
+	);
+
+	if (!passIsMatch)
+		return res.status(400).json({
+			message: 'Bad request! Username or password is wrong',
+		});
 
 		const token = signToken({
 			id: currentRestaurant._id,
@@ -89,9 +91,10 @@ const login = async (req, res) => {
 
 const getRestaurant = async (req, res) => {
 	const { id } = req.params;
+
 	if (!mongoose.Types.ObjectId.isValid(id))
 		return res.status(400).json({
-			message: 'Bad request! your restaurant id is not valid',
+			message: 'Bad request! Restaurant id is not valid',
 		});
 
 	const {
@@ -112,7 +115,7 @@ const getRestaurant = async (req, res) => {
 			.json({ message: 'Restaurant is not defined', data: null });
 
 	res.status(200).json({
-		message: 'find restaurant is successfull!',
+		message: 'Find restaurant is successfull!',
 		data: {
 			name,
 			description,
@@ -162,6 +165,7 @@ const editRestaurant = async (req, res) => {
 		'description',
 		'address'
 	);
+
 	if (req.restaurantProfileImg) obj.photo = req.restaurantProfileImg;
 
 	if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id))
@@ -169,10 +173,9 @@ const editRestaurant = async (req, res) => {
 			message: 'Bad request! your restaurant id is not valid',
 		});
 
-	const restaurant = await Restaurant.findByIdAndUpdate(
-		req.data.role == 'superAdmin' ? req.params.id : req.data._id,
-		obj
-	);
+	const id = req.data.role == 'superAdmin' ? req.params.id : req.data._id
+
+	const restaurant = await Restaurant.findByIdAndUpdate(id,obj);
 
 	if (!restaurant)
 		return res.status(404).json({ message: 'restaurant is not defined' });
@@ -210,7 +213,8 @@ const deleteRestaurant = async (req, res) => {
 	);
 
 	if (!currentRestaurant)
-		return res.status(404).json({ message: 'restaurant is not defined' });
+		return res.status(404).json({ message: 'Restaurant is not defined' });
+
 	res.status(200).json({ message: 'Delete restaurant is successfull' });
 };
 
@@ -221,7 +225,7 @@ const getAllRestaurant = async (req, res) => {
 		.skip((id - 1) * 10)
 		.limit(10);
 
-	res.status(200).json({ message: 'successfull!', data: restaurants });
+	res.status(200).json({ message: 'Successfull!', data: restaurants });
 };
 
 module.exports = {

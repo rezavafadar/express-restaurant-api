@@ -2,9 +2,7 @@ const User = require('../model/user');
 const Restaurant = require('../model/restaurant');
 const { verifyToken } = require('../utils/jwt');
 
-const protect =
-	(...access) =>
-	async (req, res, next) => {
+const protect =(...access) => async (req, res, next) => {
 		let token;
 		if (
 			req.headers.authorization &&

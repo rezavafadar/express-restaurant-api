@@ -18,11 +18,13 @@ const addFood = async (req,res)=>{
 
     if(!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).json({'message':'Bad request! food id is not valid'})
 
-    const currentRestaurant = await Restaurant.findById({_id:req.data.role == 'superAdmin'?req.params.id:req.data._id})
+    const id = req.data.role == 'superAdmin'?req.params.id:req.data._id
 
-    if(!currentRestaurant) return res.status(404).json({'message':'restaurant is not defined'})
+    const currentRestaurant = await Restaurant.findById({_id:id})
 
-    const currentFood = await Food.findOne({name:req.body.name,'restaurant.id':req.data.role == 'superAdmin'?req.params.id:req.data._id})
+    if(!currentRestaurant) return res.status(404).json({'message':'Restaurant is not defined'})
+
+    const currentFood = await Food.findOne({name:req.body.name,'restaurant.id':id})
     if(currentFood) return res.status(400).json({'message':'This food is available in the restaurant'})
 
 
@@ -35,8 +37,11 @@ const addFood = async (req,res)=>{
             id:currentRestaurant._id
         }
     }
+
     if(req.foodImg) food.photo = req.foodImg
+
     await Food.create(food)
+
     res.status(201).json({'message':'food is created!'})
 }
 
@@ -60,19 +65,23 @@ const uploadFoodImg = async (req,res,next)=>{
 
 const editFood = async (req,res)=>{
     const {id} = req.params
+
     if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
 
     if(req.body.restaurant || req.body.score) return res.status(400).json({'message':'Bad Request ! The request contains sensitive information'})
 
     const update = filtredObj(req.body,'name','price','description')
+    
     if(req.foodImg) update.photo = req.foodImg
 
     const findObj = {
         _id:id,
     }
-    if(req.data.role != 'superAdmin') findObj['restaurant.id']=req.data._id
+    if(req.data.role != 'superAdmin') findObj['restaurant.id'] = req.data._id
+
     const food = await Food.findOneAndUpdate(findObj,update)
-    if(!food) return res.status(404).json({'message':'food is not defined'})
+
+    if(!food) return res.status(404).json({'message':'Food is not defined'})
 
     if(food.photo != 'default.jpeg'){
         const deletePath = path.join(__dirname,"..","public","foodImgs",food.photo)
@@ -81,12 +90,13 @@ const editFood = async (req,res)=>{
         })
     }
 
-    res.status(200).json({'message':'successfull!'})
+    res.status(200).json({'message':'Successfull!'})
 }
 
 const deleteFood = async (req,res) =>{
     const {id} = req.params
-    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'food id is not valid'})
+
+    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Food id is not valid'})
 
     const findObj = {
         _id:id,
@@ -95,9 +105,10 @@ const deleteFood = async (req,res) =>{
     if(req.data.role != 'superAdmin') findObj['restaurant.id']=req.data._id
 
     const food = await Food.findOneAndDelete(findObj)
-    if(!food) return res.status(404).json({'message':'food is not defined!'})
 
-    res.status(200).json({'message':'successfull!'})
+    if(!food) return res.status(404).json({'message':'Food is not defined!'})
+
+    res.status(200).json({'message':'Successfull!'})
 }
 
 const getFood = async (req,res) =>{
@@ -115,7 +126,7 @@ const getAllFoods = async (req,res) =>{
 
     const foods = await Food.find({}).skip((id-1)*10).exec(10)
 
-    res.status(200).json({'message':'successfull!',data:foods})
+    res.status(200).json({'message':'Successfull!',data:foods})
 }
 
 module.exports={
