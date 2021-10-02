@@ -8,7 +8,6 @@ const fs = require('fs');
 
 const User = require('../model/user');
 const Food = require('../model/food');
-const Restaurant = require('../model/restaurant');
 
 const filtredObj = require('../utils/filteredObj');
 const sendEmail = require('../utils/email');
