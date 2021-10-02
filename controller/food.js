@@ -35,7 +35,7 @@ const addFood = async (req,res)=>{
             id:currentRestaurant._id
         }
     }
-    
+    if(req.foodImg) food.photo = req.foodImg
     await Food.create(food)
     res.status(201).json({'message':'food is created!'})
 }

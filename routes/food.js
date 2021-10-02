@@ -12,7 +12,7 @@ router.get('/:id',errHandler(getFood))
 router.use(errHandler(protect('superAdmin','restaurant')))
 
 
-router.post('/add-food/:id',errHandler(addFood))
+router.post('/add-food/:id',errHandler(uploadFoodImg),errHandler(addFood))
 
 router.route('/:id')
       .delete(errHandler(deleteFood))
