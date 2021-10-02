@@ -7,7 +7,6 @@ const {
 	editRestaurant,
 	uploadImg,
 	getAllRestaurant,
-	login
 } = require('../controller/restaurant');
 const {protect} = require('../controller/auth');
 
@@ -17,11 +16,10 @@ router.get('/all/:id', errHandler(getAllRestaurant));
 
 router.get('/:id', errHandler(getRestaurant));
 
-router.post('/register',errHandler(uploadImg), errHandler(register));
 
-router.post('/login',errHandler(login))
+router.use(protect('superAdmin','user'))
 
-router.use(protect('superAdmin','restaurant'))
+router.post('/add-restaurant',errHandler(uploadImg), errHandler(register));
 
 router.route('/:id')
       .patch(errHandler(uploadImg), errHandler(editRestaurant))

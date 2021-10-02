@@ -1,7 +1,6 @@
 const uuid = require('uuid').v4;
 const sharp = require('sharp');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 
 const path = require('path');
 const fs = require('fs');
@@ -9,7 +8,6 @@ const fs = require('fs');
 const Restaurant = require('../model/restaurant');
 const Food = require('../model/food');
 const filtredObj = require('../utils/filteredObj');
-const { signToken, verifyToken } = require('../utils/jwt');
 
 const register = async (req, res) => {
 	try {
@@ -21,15 +19,13 @@ const register = async (req, res) => {
 		});
 	}
 
-	const password = await bcrypt.hash(req.body.password, 10);
 
 	const data = {
 		name: req.body.name,
 		description: req.body.description,
 		address: req.body.address,
 		phone: req.body.phone,
-		adminUsername: req.body.username,
-		adminPassword: password,
+		admin: req.data.email
 	};
 
 	if (req.restaurantProfileImg) data.photo = req.restaurantProfileImg;
@@ -41,7 +37,7 @@ const register = async (req, res) => {
 				address: data.address,
 			},
 			{ address: data.address },
-			{ adminUsername: data.adminUsername },
+			{ admin: data.admin },
 		],
 	});
 
@@ -52,42 +48,6 @@ const register = async (req, res) => {
 
 	await Restaurant.create(data);
 	res.status(201).json({ message: 'Restaurant created!' });
-};
-
-const login = async (req, res) => {
-	const { username, password } = req.body;
-
-	if (username && password) {
-		const currentRestaurant = await Restaurant.findOne({
-			adminUsername: username,
-		});
-
-	if (!currentRestaurant)
-		return res
-			.status(404)
-			.json({ message: 'Restaurant is not defined' });
-
-	const passIsMatch = await bcrypt.compare(
-		password,
-		currentRestaurant.adminPassword
-	);
-
-	if (!passIsMatch)
-		return res.status(400).json({
-			message: 'Bad request! Username or password is wrong',
-		});
-
-		const token = signToken({
-			id: currentRestaurant._id,
-			role: 'restaurant',
-		});
-
-		res.status(200).json({ message: 'successfull!', token });
-	} else {
-		return res
-			.status(400)
-			.json({ message: 'Bad request! Username or password is wrong' });
-	}
 };
 
 const getRestaurant = async (req, res) => {
@@ -169,17 +129,18 @@ const editRestaurant = async (req, res) => {
 
 	if (req.restaurantProfileImg) obj.photo = req.restaurantProfileImg;
 
-	if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id))
+	const {id} = req.params
+
+	if (!id || !mongoose.Types.ObjectId.isValid(req.params.id))
 		return res.status(400).json({
 			message: 'Bad request! your restaurant id is not valid',
 		});
 
-	const id = req.data.role == 'superAdmin' ? req.params.id : req.data._id
 
-	const restaurant = await Restaurant.findByIdAndUpdate(id,obj);
+	const restaurant = await Restaurant.findOneAndUpdate({_id:id,admin:req.data.email},obj);
 
 	if (!restaurant)
-		return res.status(404).json({ message: 'restaurant is not defined' });
+		return res.status(404).json({ message: 'No restaurants with these specifications were found for you' });
 
 	if (restaurant.photo != 'default.jpeg') {
 		const deletePath = path.join(
@@ -197,19 +158,17 @@ const editRestaurant = async (req, res) => {
 };
 
 const deleteRestaurant = async (req, res) => {
-	if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id))
+	const {id} = req.params
+	if (!id || !mongoose.Types.ObjectId.isValid(id))
 		return res.status(400).json({
 			message: 'Bad request! your restaurant id is not valid',
 		});
 
-		console.log(req.data);
-	const id = req.data.role == 'superAdmin'? req.params.id: req.data._id
-
-	await Food.deleteMany({'restaurant.id':id})
-
+	
 	const currentRestaurant = await Restaurant.findOneAndUpdate(
 		{
 			_id:id,
+			admin:req.data.email,
 			active: true,
 		},
 		{ active: false }
@@ -217,7 +176,10 @@ const deleteRestaurant = async (req, res) => {
 
 	
 	if (!currentRestaurant)
-		return res.status(404).json({ message: 'Restaurant is not defined' });
+		return res.status(404).json({ message: 'No restaurants with these specifications were found for you' });
+
+
+	await Food.deleteMany({'restaurant.id':currentRestaurant})
 
 	res.status(200).json({ message: 'Delete restaurant is successfull' });
 };
@@ -234,7 +196,6 @@ const getAllRestaurant = async (req, res) => {
 
 module.exports = {
 	register,
-	login,
 	getAllRestaurant,
 	deleteRestaurant,
 	uploadImg,

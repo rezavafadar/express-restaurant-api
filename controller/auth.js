@@ -1,8 +1,8 @@
+const bcrypt = require('bcrypt');
+
 const User = require('../model/user');
-const Restaurant = require('../model/restaurant');
 const sendEmail = require('../utils/email');
 const { signToken, verifyToken } = require('../utils/jwt');
-const bcrypt = require('bcrypt');
 
 const protect =(...access) =>
 	async (req, res, next) => {
@@ -28,24 +28,17 @@ const protect =(...access) =>
 				.status(400)
 				.json({ message: 'you not access to this routes' });
 
-		let data;
-		if (decoded.role == 'user' || decoded.role == 'superAdmin')
-			data = await User.findOne({
+		let data = await User.findOne({
 				_id: decoded.id,
 				role: decoded.role,
 			});
-		else data = await Restaurant.findById(decoded.id);
 
 		if (!data)
 			return res.status(401).json({
 				message: 'The user belonging to this token does no longer exist',
 			});
 
-		// This feature is not implemented for restaurant account
-		if (
-			['user', 'superAdmin'].includes(data.role) &&
-			data.changedPasswordAfter(decoded.iat)
-		) {
+		if (data.changedPasswordAfter(decoded.iat)) {
 			return res.status(401).json({
 				message: 'User recently changed password! Please log in again',
 			});

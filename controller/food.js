@@ -16,11 +16,14 @@ const addFood = async (req,res)=>{
         return res.status(400).json({'message':'Bad request! validation error',error:error.errors})
     }
 
-    if(!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).json({'message':'Bad request! food id is not valid'})
+    const {id} = req.params
+    if(!id || !mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! food id is not valid'})
 
-    const id = req.data.role == 'superAdmin'?req.params.id:req.data._id
-
-    const currentRestaurant = await Restaurant.findById({_id:id})
+    const findObj = {
+        _id:id
+    }
+    if(req.data.role != 'superAdmin') findObj.admin = req.data.email
+    const currentRestaurant = await Restaurant.findOne(findObj)
 
     if(!currentRestaurant) return res.status(404).json({'message':'Restaurant is not defined'})
 
@@ -74,14 +77,17 @@ const editFood = async (req,res)=>{
     
     if(req.foodImg) update.photo = req.foodImg
 
-    const findObj = {
-        _id:id,
-    }
-    if(req.data.role != 'superAdmin') findObj['restaurant.id'] = req.data._id
-
-    const food = await Food.findOneAndUpdate(findObj,update)
+    const food = await Food.findById(id)
 
     if(!food) return res.status(404).json({'message':'Food is not defined'})
+
+    if(req.data.role != 'superAdmin'){
+        const restaurant = await Restaurant.findById(food.restaurant.id)
+        if(restaurant.admin != req.data.email) return res.status(400).json({message:'you not restaurant admin'})
+    }
+    food = {...food,...update}
+
+    await food.save()
 
     if(food.photo != 'default.jpeg'){
         const deletePath = path.join(__dirname,"..","public","foodImgs",food.photo)
@@ -98,15 +104,16 @@ const deleteFood = async (req,res) =>{
 
     if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Food id is not valid'})
 
-    const findObj = {
-        _id:id,
-    }
-
-    if(req.data.role != 'superAdmin') findObj['restaurant.id']=req.data._id
-
-    const food = await Food.findOneAndDelete(findObj)
+    const food = await Food.findById(id)
 
     if(!food) return res.status(404).json({'message':'Food is not defined!'})
+
+    if(req.data.role != 'superAdmin'){
+        const restaurant = await Restaurant.findById(food.restaurant.id)
+        if(restaurant.admin != req.data.email) return res.status(400).json({message:'you not restaurant admin'})
+    }
+
+    await food.remove()
 
     res.status(200).json({'message':'Successfull!'})
 }

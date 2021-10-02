@@ -10,7 +10,7 @@ router.get('/all/:id',errHandler(getAllFoods))
 router.get('/:id',errHandler(getFood))
 
 // Authenticate Middleware
-router.use(errHandler(protect('superAdmin','restaurant')))
+router.use(errHandler(protect('superAdmin','user')))
 
 router.route('/:id')
       .post(errHandler(uploadFoodImg),errHandler(addFood))
