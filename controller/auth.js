@@ -20,14 +20,11 @@ const protect =(...access)=> async (req, res, next) => {
 			.status(400)
 			.json({ message: 'Bad request! Token is not valid' });
 
-			console.log(decoded)
     if(!access.includes(decoded.role)) return res.status(400).json({message:'you not access to this routes'})
-    console.log(decoded);
 
     let data;
     if(decoded.role == 'user' || decoded.role == 'superAdmin') data = await User.findOne({_id:decoded.id,role:decoded.role})
     else data = await Restaurant.findById(decoded.id);
-	console.log(data);
 
 	if (!data)
 		return res.status(401).json({
