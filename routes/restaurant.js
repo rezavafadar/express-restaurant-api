@@ -11,7 +11,7 @@ const {
 } = require('../controller/restaurant');
 const {protect} = require('../controller/auth');
 
-const errHandler = require('../utils/errhandler');
+const errHandler = require('../utils/errorHandler');
 
 router.get('/all/:id', errHandler(getAllRestaurant));
 

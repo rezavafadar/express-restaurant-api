@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const errHandler = require('../utils/errhandler');
+const errHandler = require('../utils/errorHandler');
 
 const userController = require('../controller/user');
 const {protect,login,resetPassword,register,forgotPassword} = require('../controller/auth');
@@ -19,7 +19,7 @@ router.get('/all/:id',errHandler(protect('superAdmin')),userController.getAllUse
 router.use(errHandler(protect('user','superAdmin')))
 
 // User Basket Routes
-router.post('/update-basket',userController.updateBasket)
+router.patch('/update-basket',userController.updateBasket)
 router.delete('/reset-basket',userController.resetBasket)
 router.get('/get-basket',userController.getBasket)
 
