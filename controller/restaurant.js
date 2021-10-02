@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 
 const Restaurant = require('../model/restaurant');
+const Food = require('../model/food');
 const filtredObj = require('../utils/filteredObj');
 const { signToken, verifyToken } = require('../utils/jwt');
 
@@ -201,17 +202,20 @@ const deleteRestaurant = async (req, res) => {
 			message: 'Bad request! your restaurant id is not valid',
 		});
 
+		console.log(req.data);
+	const id = req.data.role == 'superAdmin'? req.params.id: req.data._id
+
+	await Food.deleteMany({'restaurant.id':id})
+
 	const currentRestaurant = await Restaurant.findOneAndUpdate(
 		{
-			_id:
-				req.data.role == 'superAdmin'
-					? req.params.id
-					: req.data._id,
+			_id:id,
 			active: true,
 		},
 		{ active: false }
 	);
 
+	
 	if (!currentRestaurant)
 		return res.status(404).json({ message: 'Restaurant is not defined' });
 
