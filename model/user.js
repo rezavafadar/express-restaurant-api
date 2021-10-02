@@ -3,6 +3,20 @@ const bcrypt = require('bcrypt');
 
 const validateSchema = require('./secure/user');
 
+const basketSchema = mongoose.Schema(
+    {
+        restaurantName:String,
+        restaurantId:String,
+        foods:[
+            {
+                name:String,
+                price:Number,
+                id:String,
+                number:Number
+            }
+        ]
+    }
+)
 const userSchema = mongoose.Schema({
     fullname:{
         type:String,
@@ -32,6 +46,7 @@ const userSchema = mongoose.Schema({
     passwordChangedAt:Date,
     passwordResetToken:String,
     passwordResetExpires:Date,
+    basket:basketSchema,
     createAt:{
         type:Date,
         default:Date.now()
