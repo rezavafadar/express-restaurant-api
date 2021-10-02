@@ -1,6 +1,4 @@
 # express-restaurant-api
-restaurant api
-
 A Restaurant Api
 
 Features:

@@ -1,0 +1,6 @@
+/config/dev.env
+/node_modules
+/package-lock.json
+/test.js
+/.prettierrc
+/.eslintrc
