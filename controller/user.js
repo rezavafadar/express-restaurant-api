@@ -104,9 +104,9 @@ const forgetPassword = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-	const { id } = req.params;
+	const resetToken = req.params;
 
-	let token = await verifyToken(id);
+	let token = await verifyToken(resetToken);
 
 	if (!token)
 		return res
@@ -120,7 +120,7 @@ const resetPassword = async (req, res) => {
 				.json({ message: 'new password is required!' });
 				
 	const user = await User.findOne({
-		passwordResetToken: id,
+		passwordResetToken: resetToken,
 		passwordResetExpires: { $gt: Date.now() },
 	});
 
