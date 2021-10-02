@@ -18,6 +18,10 @@ const restaurantSchema = mongoose.Schema({
     phone:{type:Number,required:true},
     address:{type:String,required:true},
     active:{type:Boolean,default:true},
+    role:{
+        type:String,
+        default:'restaurant'
+    },
     createAt:{
         type:Date,
         default:Date.now()

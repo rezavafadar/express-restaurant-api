@@ -57,14 +57,13 @@ const login = async (req,res) =>{
 	if(username && password){
 		const currentRestaurant = await Restaurant.findOne({adminUsername:username})
 
-		console.log(currentRestaurant);
 		if(!currentRestaurant)return res.status(404).json({message:'Restaurant is not defined'})
 		console.log('login pass',currentRestaurant.adminPassword);
 		const passIsMatch = await bcrypt.compare(password,currentRestaurant.adminPassword)
 
 		if(!passIsMatch) return res.status(400).json({message:'Bad request! Username or password is wrong'})
 
-		const token = signToken({id:currentRestaurant._id})
+		const token = signToken({id:currentRestaurant._id,role:"restaurant"})
 
 		res.status(200).json({message:'successfull!',token})
 	}else{
@@ -74,10 +73,9 @@ const login = async (req,res) =>{
 
 const getRestaurant = async (req, res) => {
 	const { id } = req.params;
-	console.log(mongoose.Types.ObjectId.isValid(id));
 	if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
 
-	const {name,description,photo,phone,address,score,active} = await Restaurant.findById(id);
+	const {name,description,photo,phone,address,score,active,adminUsername,createAt} = await Restaurant.findById(id);
 
 	if (!name || active==false)
 		return res
@@ -86,7 +84,7 @@ const getRestaurant = async (req, res) => {
 
 	res.status(200).json({
 		message: 'find restaurant is successfull!',
-		data: {name,description,photo,phone,address,score}
+		data: {name,description,photo,phone,address,score,adminUsername,createAt}
 	});
 };
 
@@ -108,7 +106,6 @@ const uploadImg = async (req,res,next) =>{
 }
 
 const editRestaurant = async (req, res) => {
-
 	if (req.body.admin || req.body.active) return res.status(400).json({
 			message: 'Bad Request ! The request contains sensitive information',
 		});
@@ -117,8 +114,9 @@ const editRestaurant = async (req, res) => {
     if(req.restaurantProfileImg) obj.photo = req.restaurantProfileImg
 
 
-	// if(req.user.role !== 'superAdmin') findObj.admin =req.user.id
-	const restaurant = await Restaurant.findByIdAndUpdate(req.restaurant._id, obj);
+	if(!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
+	
+	const restaurant = await Restaurant.findByIdAndUpdate(req.data.role == 'superAdmin'?req.params.id:req.data._id, obj);
 
     if(!restaurant) return res.status(404).json({'message':'restaurant is not defined'})
 
@@ -132,9 +130,10 @@ const editRestaurant = async (req, res) => {
 };
 
 const deleteRestaurant = async (req, res) => {
-
+	if(!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).json({'message':'Bad request! your restaurant id is not valid'})
+	
 	const currentRestaurant = await Restaurant.findOneAndUpdate(
-		{_id:req.restaurant._id,active:true},
+		{_id:req.data.role == 'superAdmin'?req.params.id:req.data._id,active:true},
 		{ active: false }
 	);
 
@@ -150,40 +149,6 @@ const getAllRestaurant = async (req,res)=>{
     res.status(200).json({'message':'successfull!',data:restaurants})
 }
 
-const restaurantAuthenticate = async (req, res, next) => {
-	let token;
-	if (
-		req.headers.authorization &&
-		req.headers.authorization.startsWith('Bearer')
-	)
-		token = req.headers.authorization.split(' ')[1];
-	else
-		return res.status(400).json({
-			message: 'You are not logged in! Please log in to get access.',
-		});
-
-	const decoded = await verifyToken(token);
-	if (!decoded)
-		return res
-			.status(400)
-			.json({ message: 'Bad request! Token is not valid' });
-
-	const currentRestaurant = await Restaurant.findById(decoded.id);
-
-	if (!currentRestaurant)
-		return res.status(401).json({
-			message: 'The user belonging to this token does no longer exist',
-		});
-
-	// if (currentRestaurant.changedPasswordAfter(decoded.iat)) {
-	// 	return res.status(401).json({
-	// 		message: 'User recently changed password! Please log in again',
-	// 	});
-	// }
-
-	req.restaurant = currentRestaurant;
-	next();
-};
 
 module.exports={
 	register,
@@ -192,6 +157,5 @@ module.exports={
 	deleteRestaurant,
 	uploadImg,
 	editRestaurant,
-	getRestaurant,
-	restaurantAuthenticate
+	getRestaurant
 }

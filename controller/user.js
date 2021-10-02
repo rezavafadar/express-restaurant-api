@@ -137,7 +137,7 @@ const getUser = async (req, res) => {
     active = '',
     photo = '',
 	passwordChangedAt
-  } = await User.findById(req.user.role == "superAdmin" ? req.params.id:req.user._id);
+  } = await User.findById(req.data.role == "superAdmin" ? req.params.id:req.data._id);
   if (fullname === '')
     return res.status(404).json({ message: 'User is not defined!' });
 
@@ -183,8 +183,8 @@ const updateMe = async (req, res) => {
   const obj = filtredObj(body, 'fullname', 'email');
 
   if (req.profileImg) obj.photo = req.profileImg;
-  console.log(obj);
-  const user =await User.findByIdAndUpdate(req.user.id, obj);
+
+  const user =await User.findByIdAndUpdate(req.data.role == "superAdmin" ? req.params.id:req.data._id, obj);
 
   if(!user) return res.status(404).json({message:'user is not defined'})
 
@@ -200,13 +200,12 @@ const updateMe = async (req, res) => {
 
 const deleteUser = async(req,res)=>{
   
-  await User.findByIdAndUpdate(req.user.role == "superAdmin" ? req.params.id:req.user._id,{active:false})
+  await User.findByIdAndUpdate(req.data.role == "superAdmin" ? req.params.id:req.data._id,{active:false})
 
   res.status(200).json({'status':'success'})
 };
 
 const getAllUser = async (req,res)=>{
-  if(req.user.role != 'superAdmin') return res.status(401).json({'message':'Bad request! you do not have permission to perform this action'})
   const {id} = req.params
 
   const users = await User.find({}).skip((id-1)*10).exec(10)
@@ -214,40 +213,7 @@ const getAllUser = async (req,res)=>{
   res.status(200).json({'message':'successfull!',data:users})
 }
 
-const userAuthenticate = async (req, res, next) => {
-	let token;
-	if (
-		req.headers.authorization &&
-		req.headers.authorization.startsWith('Bearer')
-	)
-		token = req.headers.authorization.split(' ')[1];
-	else
-		return res.status(400).json({
-			message: 'You are not logged in! Please log in to get access.',
-		});
 
-	const decoded = await verifyToken(token);
-	if (!decoded)
-		return res
-			.status(400)
-			.json({ message: 'Bad request! Token is not valid' });
-
-	const currentUser = await User.findById(decoded.id);
-
-	if (!currentUser)
-		return res.status(401).json({
-			message: 'The user belonging to this token does no longer exist',
-		});
-
-	if (currentUser.changedPasswordAfter(decoded.iat)) {
-		return res.status(401).json({
-			message: 'User recently changed password! Please log in again',
-		});
-	}
-
-	req.user = currentUser;
-	next();
-};
 
 module.exports={
   getUser,
@@ -259,5 +225,4 @@ module.exports={
   login,
   resetPassword,
   forgetPassword,
-  userAuthenticate
 }
