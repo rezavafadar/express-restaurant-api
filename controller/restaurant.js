@@ -179,7 +179,7 @@ const deleteRestaurant = async (req, res) => {
 		return res.status(404).json({ message: 'No restaurants with these specifications were found for you' });
 
 
-	await Food.deleteMany({'restaurant.id':currentRestaurant})
+	await Food.deleteMany({'restaurant.id':currentRestaurant._id})
 
 	res.status(200).json({ message: 'Delete restaurant is successfull' });
 };

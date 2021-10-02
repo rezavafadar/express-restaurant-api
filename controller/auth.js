@@ -4,7 +4,8 @@ const User = require('../model/user');
 const sendEmail = require('../utils/email');
 const { signToken, verifyToken } = require('../utils/jwt');
 
-const protect =(...access) =>
+const protect =
+	(...access) =>
 	async (req, res, next) => {
 		let token;
 		if (
@@ -29,9 +30,9 @@ const protect =(...access) =>
 				.json({ message: 'you not access to this routes' });
 
 		let data = await User.findOne({
-				_id: decoded.id,
-				role: decoded.role,
-			});
+			_id: decoded.id,
+			role: decoded.role,
+		});
 
 		if (!data)
 			return res.status(401).json({
@@ -46,7 +47,7 @@ const protect =(...access) =>
 
 		req.data = data;
 		next();
-};
+	};
 
 const register = async (req, res) => {
 	try {
@@ -75,10 +76,10 @@ const register = async (req, res) => {
 
 	await User.create(user);
 
-	res.status(201).json({ message: 'User created !' });
-
 	// send wlc email to user
 	sendEmail(user.email, 'welcome', `${user.fullname} welcome to restaurant`);
+
+	return res.status(201).json({ message: 'User created !' });
 };
 
 const login = async (req, res) => {
@@ -95,11 +96,11 @@ const login = async (req, res) => {
 		if (!passMatch)
 			return res.status(401).json({ message: 'Unauthorized' });
 
-		const token = signToken({ id: user._id });
+		const token = signToken({ id: user._id, role: user.role });
 
 		user.password = null;
 
-		res.status(statusCode).json({ status: 'success', token, data: user });
+		res.status(200).json({ status: 'success', token, data: user });
 	} else {
 		return res
 			.status(400)
@@ -139,8 +140,9 @@ const forgotPassword = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-	const resetToken = req.params;
+	const resetToken = req.params.token;
 
+	console.log(resetToken);
 	let token = await verifyToken(resetToken);
 
 	if (!token)
@@ -186,5 +188,5 @@ module.exports = {
 	register,
 	login,
 	forgotPassword,
-	resetPassword
+	resetPassword,
 };

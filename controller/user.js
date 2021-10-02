@@ -40,8 +40,8 @@ const getUser = async (req, res) => {
 	});
 };
 
-const uploadProfileImg = (req, res, next) => {
-	if (!req.files || req.files.profileImg) return next();
+const uploadProfileImg = async(req, res, next) => {
+	if (!req.files || !req.files.profileImg) return next();
 
 	const img = req.files.profileImg;
 
@@ -189,7 +189,7 @@ const resetBasket = async (req, res) => {
 };
 
 const getBasket = async (req, res) => {
-	res.status(200).json({ message: 'Successfull!', data: req.data.basket });
+	res.status(200).json({ message: 'Find basket is successfull!', data: req.data.basket });
 };
 
 module.exports = {
@@ -198,10 +198,6 @@ module.exports = {
 	updateMe,
 	deleteUser,
 	getAllUser,
-	register,
-	login,
-	resetPassword,
-	forgetPassword,
 	updateBasket,
 	resetBasket,
 	getBasket,

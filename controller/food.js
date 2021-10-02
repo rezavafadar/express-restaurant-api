@@ -77,7 +77,7 @@ const editFood = async (req,res)=>{
     
     if(req.foodImg) update.photo = req.foodImg
 
-    const food = await Food.findById(id)
+    let food = await Food.findById(id)
 
     if(!food) return res.status(404).json({'message':'Food is not defined'})
 
@@ -85,9 +85,8 @@ const editFood = async (req,res)=>{
         const restaurant = await Restaurant.findById(food.restaurant.id)
         if(restaurant.admin != req.data.email) return res.status(400).json({message:'you not restaurant admin'})
     }
-    food = {...food,...update}
 
-    await food.save()
+    await Food.findByIdAndUpdate(food._id,update)
 
     if(food.photo != 'default.jpeg'){
         const deletePath = path.join(__dirname,"..","public","foodImgs",food.photo)
