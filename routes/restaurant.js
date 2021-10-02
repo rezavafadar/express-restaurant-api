@@ -17,7 +17,7 @@ router.get('/all/:id', errHandler(getAllRestaurant));
 
 router.get('/:id', errHandler(getRestaurant));
 
-router.post('/add-restaurant', errHandler(register));
+router.post('/add-restaurant',errHandler(uploadImg), errHandler(register));
 
 router.post('/login',errHandler(login))
 
