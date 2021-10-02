@@ -1,9 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
 const fileUpload = require('express-fileupload');
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
 
-dotenv.config({path:`./config/${process.env.NODE_ENV}.env`})
+dotenv.config({ path: `./config/${process.env.NODE_ENV}.env` });
 
 const userRoutes = require('./routes/user');
 const restaurantRoutes = require('./routes/restaurant');
@@ -11,9 +11,10 @@ const foodRoutes = require('./routes/food');
 
 function App() {
 	const app = express();
-	const appMode =process.env.NODE_ENV
+	const appMode = process.env.NODE_ENV;
+	
 	// development mode
-	if ( appMode == 'dev') {
+	if (appMode == 'dev') {
 		morgan('dev');
 	}
 
@@ -25,10 +26,10 @@ function App() {
 
 	// routes
 	app.use('/api/user', userRoutes);
-	app.use('/api/restaurant',restaurantRoutes)
-	app.use('/api/food',foodRoutes)
-	
+	app.use('/api/restaurant', restaurantRoutes);
+	app.use('/api/food', foodRoutes);
+
 	return app;
 }
 
-module.exports = App
+module.exports = App;
