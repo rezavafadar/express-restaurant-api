@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const validateSchema = require('./secure/user');
+const validateSchema = require('../validations/user');
 
 const basketSchema = mongoose.Schema(
     {

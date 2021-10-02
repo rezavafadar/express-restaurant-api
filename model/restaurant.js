@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const validation = require('./secure/restaurant');
+const validation = require('../validations/restaurant');
 
 const restaurantSchema = mongoose.Schema({
 	name: {

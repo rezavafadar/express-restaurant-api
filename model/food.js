@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const validation = require('./secure/food');
+const validation = require('../validations/food');
 
 const foodSchema = mongoose.Schema({
     name:{
