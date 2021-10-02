@@ -9,7 +9,7 @@ const {
 	getAllRestaurant,
 	login
 } = require('../controller/restaurant');
-const protect = require('../controller/auth');
+const {protect} = require('../controller/auth');
 
 const errHandler = require('../utils/errhandler');
 

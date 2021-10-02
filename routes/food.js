@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const protect = require('../controller/auth');
+const {protect} = require('../controller/auth');
 const {addFood, getFood, getAllFoods, deleteFood, uploadFoodImg, editFood} = require('../controller/food');
 
 const errHandler = require('../utils/errhandler');

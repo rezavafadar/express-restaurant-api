@@ -3,15 +3,15 @@ const router = require('express').Router();
 const errHandler = require('../utils/errhandler');
 
 const userController = require('../controller/user');
-const protect = require('../controller/auth');
+const {protect,login,resetPassword,register,forgotPassword} = require('../controller/auth');
 
-router.post('/register',errHandler(userController.uploadProfileImg),errHandler(userController.register))
+router.post('/register',errHandler(userController.uploadProfileImg),errHandler(register))
 
-router.post('/login',errHandler(userController.login))
+router.post('/login',errHandler(login))
 
-router.post('/forgetpassword',errHandler(userController.forgetPassword))
+router.post('/forgot-password',errHandler(forgotPassword))
 
-router.patch('/resetpassword/:token',errHandler(userController.resetPassword))
+router.patch('/reset-password/:token',errHandler(resetPassword))
 
 router.get('/all/:id',errHandler(protect('superAdmin')),userController.getAllUser)
 
