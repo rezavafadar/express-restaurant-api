@@ -30,7 +30,7 @@ const register = async (req, res) => {
 		adminPassword: password,
 	};
 
-	if (restaurantProfileImg) data.photo = restaurantProfileImg;
+	if (req.restaurantProfileImg) data.photo = req.restaurantProfileImg;
 
 	const currentRestaurant = await Restaurant.findOne({
 		$or: [
