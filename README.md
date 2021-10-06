@@ -15,8 +15,6 @@ Features:
          - get
 
 - Restaurant :
-    - register
-    - login
     - get all restaurans and one restaurans
     - delete 
     - edit profile + upload profile img
